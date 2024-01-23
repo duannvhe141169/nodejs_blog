@@ -1,0 +1,107 @@
+<h class="mt-4">
+
+    <div class="trash">
+        <h2>My Course</h2>
+        <a href="/me/stored/courses">Back your Courses</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Time Create</th>
+                <th scope="col">Time Delete</th>
+                <th style="text-align: center;" scope="col"> action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+            <tr>
+                <th scope="row">{{sum @index 1}}</th>
+                <td colspan="1">{{this.name}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>{{this.deletedAt}}</td>
+                <td style="text-align: center;">
+                    <a class="btn btn-link me-2 btn-restore" data-restore-id="{{this._id}}" href="">Restore</a>
+
+                    <a class="ms-2 btn btn-link btn-deleteforce" data-deleteforce-id="{{this._id}}"
+                        data-bs-toggle="modal" data-bs-target="#deleteforce-course-modal" href="">Permanently Delete</a>
+                </td>
+            </tr>
+
+            {{else}}
+            <!-- Message to show when there are no courses -->
+            <tr>
+                <td colspan="5" style="text-align: center;">You haven't deleted any courses yet<a
+                        href="/me/stored-courses">See all Your Course</a></td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</h>
+{{!-- delet alert --}}
+<div class="modal fade" id="deleteforce-course-modal" tabindex="-1" aria-labelledby="confirm-deleteforce-model"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirm-deleteforce-model">Delete Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <P>Are you sure to remove this course?</P>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="btn-deleteforce-model" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{!-- delete form --}}
+<form method="POST" name="delete-form" id="form-deleteforce"></form>
+<form method="POST" name="restore-form" id="form-restore"></form>
+<script>
+
+    // delete
+    var courseId;
+    var confirmmd = document.getElementById('deleteforce-course-modal');
+    var deleteForm = document.getElementById('form-deleteforce');
+
+
+    confirmmd.addEventListener('show.bs.modal', function (event) {
+        var deletId = event.relatedTarget.getAttribute('data-deleteforce-id');
+        courseId = deletId || ''; // Set courseId to id or an empty string  
+       
+    });
+
+    var btndelte = document.getElementById('btn-deleteforce-model');
+    //  delete click
+    btndelte.addEventListener('click', function () {
+        deleteForm.action = '/courses/' + courseId + '/deleteforce?_method=DELETE';
+        courseId ? deleteForm.submit() : alert('CourseId is null or empty. Form not submitted.');
+        
+    });
+    //restore
+
+    var restorebtn = document.getElementById('btn-restore');
+    var restoreForm = document.getElementById('form-restore');
+    console.log(restoreForm);
+    // Restore event
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('btn-restore')) {
+            e.preventDefault();
+
+            var restoreId = e.target.getAttribute('data-restore-id');
+            if (restoreId) {
+                restoreForm.action = '/courses/' + restoreId + '/restore?_method=PATCH';
+                console.log(restoreId);
+                console.log(restoreForm);
+                console.log(restoreForm.action);
+                restoreForm.submit();
+            } else {
+                alert('RestoreId is null or empty. Form not submitted.');
+            }
+        }
+    });
+</script>
